@@ -47,7 +47,8 @@ function getNotes() {
 		getEl('#btn-collect').disabled = false;
 		getEl('#btn-collect').text = 'Create pdf';
 		return res;
-	}).then(onNotesCollected)
+	})
+	.then(onNotesCollected)
 }
 
 function onNotesCollected({
@@ -73,13 +74,14 @@ function onNotesCollected({
 			columns: [{
 					text: courseTitle,
 					alignment: 'left',
-					fontSize: 7,
-					color: '#a435f0',
+					fontSize: 6,
+					color: 'gray',
 				},
 				{
 					text: 'Udemy note to pdf',
 					alignment: 'right',
-					fontSize: 7,
+					fontSize: 6,
+					color: 'gray',
 				}
 			]
 		},
@@ -114,7 +116,7 @@ function onNotesCollected({
 			text: sectionTitle,
 			alignment: 'center',
 			pageBreak: 'before',
-			margin: [0, 0, 0, 10],
+			margin: [0, 50, 0, 10],
 			fontSize: 18,
 			bold: true,
 			tocItem: ['mainToc']
@@ -123,8 +125,9 @@ function onNotesCollected({
 		Object.keys(sections[sectionTitle]).forEach(lectureTitle => {
 			docDefinition.content.push({
 				text: lectureTitle,
+				pageBreak: 'before',
 				fontSize: 14,
-				margin: [0, 25, 0, 0],
+				margin: 0,
 				bold: true,
 				color: 'blue'
 			})

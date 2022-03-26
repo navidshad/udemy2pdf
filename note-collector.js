@@ -12,43 +12,81 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 
 let lectures = {};
 
+function convertTimeToSeconds(strTime) {
+	let parts = strTime.split(':')
+
+	parts.forEach((value, i) => {
+		value = Number.parseInt(value);
+		value = i == 0 ? value * 60 : value;
+	})
+
+	return parts[0] + parts[1];
+}
+
 function collectNotes() {
 	lectures = {};
 
 	const s = {
 		courseTitle: '.header--course-title--tHmMe > a',
+		lectureNote: '.lecture-bookmark-v2--row--1JALI',
+		lectureTime: '.lecture-bookmark-duration--bookmark-timer--DMSFz > span',
 		sectionTitle: '.lecture-bookmark-v2--section--383LP',
-		lectureNote: '.lecture-bookmark-v2--bookmark-container--yCEMR',
 		lectureTitle: '.udlite-text-sm',
 		lectureNoteContent: '.rich-text-viewer--rich-text-viewer--19N-I'
 	}
 
 	// Get All lecture nodes
 	let courseTitle = document.querySelector(s.courseTitle).textContent;
-	let = lecturesNodes = document.querySelectorAll(s.lectureNote);
+	let = LectureParentNodes = document.querySelectorAll(s.lectureNote);
 
-	for (let lectureIndex = 0; lectureIndex < lecturesNodes.length; lectureIndex++) {
-		const LectureNode = lecturesNodes[lectureIndex];
+	for (let lectureIndex = 0; lectureIndex < LectureParentNodes.length; lectureIndex++) {
+		const LectureParentNode = LectureParentNodes[lectureIndex];
 
-		let SectionTitle = LectureNode.querySelector(s.sectionTitle).textContent
-		let lectureTitle = LectureNode.querySelector(s.lectureTitle).textContent;
-		let noteCOntent = LectureNode.querySelector(s.lectureNoteContent).innerHTML;
+		let lectureTime = LectureParentNode.querySelector(s.lectureTime).textContent;
+		lectureTime = convertTimeToSeconds(lectureTime);
+
+		let SectionTitle = LectureParentNode.querySelector(s.sectionTitle).textContent
+		let lectureTitle = LectureParentNode.querySelector(s.lectureTitle).textContent;
+		let noteCOntent = LectureParentNode.querySelector(s.lectureNoteContent).innerHTML;
 
 		if (lectures[SectionTitle] && lectures[SectionTitle][lectureTitle]) {
-			lectures[SectionTitle][lectureTitle].push(noteCOntent);
+
+			lectures[SectionTitle][lectureTitle].push([lectureTime, noteCOntent]);
+
+			let lectureNotes = lectures[SectionTitle][lectureTitle];
+
+			// Sort by time
+			lectureNotes.sort((a, b) => {
+				if (a[0] < b[0]) return -1;
+				else return 1;
+			})
+
 		} else if (lectures[SectionTitle]) {
-			lectures[SectionTitle][lectureTitle] = [noteCOntent]
+			lectures[SectionTitle][lectureTitle] = [
+				[lectureTime, noteCOntent]
+			]
 		} else {
 			lectures[SectionTitle] = {};
-			lectures[SectionTitle][lectureTitle] = [noteCOntent]
+			lectures[SectionTitle][lectureTitle] = [
+				[lectureTime, noteCOntent]
+			]
 		}
 	}
+
+	// remove time
+	Object.keys(lectures)
+		.forEach(SectionTitle => {
+			Object.keys(lectures[SectionTitle]).forEach(lectureTitle => {
+				lectures[SectionTitle][lectureTitle] = lectures[SectionTitle][lectureTitle].map(lectureNote => lectureNote[1]);
+			})
+		})
+
 
 	let result = {
 		courseTitle,
 		sections: lectures
 	}
-	
+
 	console.log(result);
 
 	return result;
