@@ -30,11 +30,9 @@ function init() {
 
 		if (status == 'active') {
 			getEl('.btn-group').style.display = 'block'
-
 			getEl('#btn-collect').addEventListener('click', getNotes);
 		}
 	})
-
 }
 
 init();
@@ -72,19 +70,22 @@ function onNotesCollected({
 
 		footer: {
 			margin: [20, 15],
-			columns: [
-				{
+			columns: [{
 					text: courseTitle,
 					alignment: 'left',
-					fontSize:7,
+					fontSize: 7,
 					color: '#a435f0',
 				},
 				{
 					text: 'Udemy note to pdf',
 					alignment: 'right',
-					fontSize:7,
+					fontSize: 7,
 				}
 			]
+		},
+
+		styles: {
+
 		},
 
 		content: [{
@@ -123,27 +124,38 @@ function onNotesCollected({
 			docDefinition.content.push({
 				text: lectureTitle,
 				fontSize: 14,
-				margin: [0, 25, 0, 10],
+				margin: [0, 25, 0, 0],
 				bold: true,
 				color: 'blue'
 			})
 
-			let lectureNotes = sections[sectionTitle][lectureTitle].map(note => {
-				return note.replaceAll('<br><br>', '<br>');
-			})
+			sections[sectionTitle][lectureTitle].map(note => {
 
-			let lectureNoteForPdf = htmlToPdfmake(
-				lectureNotes, {
-					defaultStyles: {
-						p: {
-							fontSize: 12,
-							color: '#303030'
+				let normalizedNote = `<div>${note.replaceAll('<br><br>', '<br>')}</div>`
+
+				let lectureNoteForPdf = htmlToPdfmake(
+					normalizedNote, {
+						defaultStyles: {
+							p: {
+								fontSize: 12,
+								color: '#303030',
+								margin: 0,
+							},
+
 						}
 					}
-				}
-			);
+				);
 
-			docDefinition.content.push(lectureNoteForPdf)
+				docDefinition.content.push({
+					layout: 'noBorders',
+					margin: [0, 10],
+					table: {
+						body: [
+							[lectureNoteForPdf]
+						]
+					}
+				})
+			})
 		})
 	})
 
