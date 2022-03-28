@@ -15,6 +15,14 @@ function getEl(selector) {
 	return document.querySelector(selector)
 }
 
+function removeVideoNumber(title) {
+	let parts = title.split('. ');
+
+	parts.splice(0, 1);
+
+	return parts.join()
+}
+
 function init() {
 	chrome.tabs.query({
 		active: true,
@@ -42,13 +50,13 @@ function getNotes() {
 	getEl('#btn-collect').text = 'Working ...';
 
 	sendMessageToTab(activeTab.id, {
-		type: events.getNotes
-	}).then(res => {
-		getEl('#btn-collect').disabled = false;
-		getEl('#btn-collect').text = 'Create pdf';
-		return res;
-	})
-	.then(onNotesCollected)
+			type: events.getNotes
+		}).then(res => {
+			getEl('#btn-collect').disabled = false;
+			getEl('#btn-collect').text = 'Create pdf';
+			return res;
+		})
+		.then(onNotesCollected)
 }
 
 function onNotesCollected({
@@ -71,14 +79,15 @@ function onNotesCollected({
 
 		footer: {
 			margin: [20, 15],
-			columns: [{
+			columns: [
+				{
 					text: courseTitle,
 					alignment: 'left',
 					fontSize: 6,
 					color: 'gray',
 				},
 				{
-					text: 'Udemy note to pdf',
+					text: 'Udemy 2 pdf',
 					alignment: 'right',
 					fontSize: 6,
 					color: 'gray',
@@ -90,7 +99,8 @@ function onNotesCollected({
 
 		},
 
-		content: [{
+		content: [
+			{
 				text: courseTitle,
 				margin: [0, 50, 0, 70],
 				alignment: 'center',
@@ -99,12 +109,16 @@ function onNotesCollected({
 				bold: true,
 			},
 			{
+				fontSize: 8,
+				pageBreak: 'before',
 				toc: {
 					id: 'mainToc',
 					title: {
 						text: 'Table of contents',
-						style: 'header'
-					}
+						alignment: 'center',
+						fontSize: 14,
+						margine: [0,0,0,30]
+					},
 				},
 			}
 		],
@@ -113,7 +127,7 @@ function onNotesCollected({
 
 	Object.keys(sections).forEach(sectionTitle => {
 		docDefinition.content.push({
-			text: sectionTitle,
+			text: removeVideoNumber(sectionTitle),
 			alignment: 'center',
 			pageBreak: 'before',
 			margin: [0, 50, 0, 10],
@@ -124,27 +138,29 @@ function onNotesCollected({
 
 		Object.keys(sections[sectionTitle]).forEach(lectureTitle => {
 			docDefinition.content.push({
-				text: lectureTitle,
+				text: removeVideoNumber(lectureTitle),
 				pageBreak: 'before',
 				fontSize: 14,
 				margin: 0,
 				bold: true,
-				color: 'blue'
+				color: 'blue',
+				tocItem: ['mainToc']
 			})
 
 			sections[sectionTitle][lectureTitle].map(note => {
 
-				let normalizedNote = `<div>${note.replaceAll('<br><br>', '<br>')}</div>`
-
 				let lectureNoteForPdf = htmlToPdfmake(
-					normalizedNote, {
+					note, {
 						defaultStyles: {
 							p: {
-								fontSize: 12,
+								fontSize: 10,
 								color: '#303030',
 								margin: 0,
+								lineHeight:1.2
 							},
-
+							strong: {
+								fontSize: 12,
+							}
 						}
 					}
 				);
@@ -162,5 +178,5 @@ function onNotesCollected({
 		})
 	})
 
-	pdfMake.createPdf(docDefinition).download();
+	pdfMake.createPdf(docDefinition).download(courseTitle + '.pdf');
 }
