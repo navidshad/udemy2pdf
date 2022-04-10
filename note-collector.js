@@ -32,7 +32,7 @@ function collectNotes() {
 		lectureTime: '.lecture-bookmark-duration--bookmark-timer--DMSFz > span',
 		sectionTitle: '.lecture-bookmark-v2--section--383LP',
 		lectureTitle: '.udlite-text-sm',
-		lectureNoteContent: '.rich-text-viewer--rich-text-viewer--19N-I'
+		lectureNoteContent: '[data-purpose=bookmark-body]'
 	}
 
 	// Get All lecture nodes
