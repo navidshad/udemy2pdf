@@ -79,8 +79,7 @@ function onNotesCollected({
 
 		footer: {
 			margin: [20, 15],
-			columns: [
-				{
+			columns: [{
 					text: courseTitle,
 					alignment: 'left',
 					fontSize: 6,
@@ -99,8 +98,7 @@ function onNotesCollected({
 
 		},
 
-		content: [
-			{
+		content: [{
 				text: courseTitle,
 				margin: [0, 50, 0, 70],
 				alignment: 'center',
@@ -117,7 +115,7 @@ function onNotesCollected({
 						text: 'Table of contents',
 						alignment: 'center',
 						fontSize: 14,
-						margine: [0,0,0,30]
+						margine: [0, 0, 0, 30],
 					},
 				},
 			}
@@ -125,16 +123,33 @@ function onNotesCollected({
 	}
 
 
-	Object.keys(sections).forEach(sectionTitle => {
-		docDefinition.content.push({
-			text: removeVideoNumber(sectionTitle),
-			alignment: 'center',
-			pageBreak: 'before',
-			margin: [0, 50, 0, 10],
-			fontSize: 18,
-			bold: true,
-			tocItem: ['mainToc']
-		})
+	Object.keys(sections).forEach((sectionTitle, i) => {
+
+		let seasonid = 's-'+i;
+
+		docDefinition.content = docDefinition.content.concat([{
+				text: removeVideoNumber(sectionTitle),
+				alignment: 'center',
+				pageBreak: 'before',
+				margin: [0, 50, 0, 10],
+				fontSize: 18,
+				bold: true,
+				tocItem: ['mainToc']
+			},
+			{
+				fontSize: 8,
+				toc: {
+					id: seasonid,
+					title: {
+						text: '',
+						alignment: 'center',
+						fontSize: 14,
+						margine: [50, 0, 50, 30]
+					},
+				},
+			}
+		])
+
 
 		Object.keys(sections[sectionTitle]).forEach(lectureTitle => {
 			docDefinition.content.push({
@@ -144,7 +159,7 @@ function onNotesCollected({
 				margin: 0,
 				bold: true,
 				color: 'blue',
-				tocItem: ['mainToc']
+				tocItem: [seasonid]
 			})
 
 			sections[sectionTitle][lectureTitle].map(note => {
@@ -156,7 +171,7 @@ function onNotesCollected({
 								fontSize: 10,
 								color: '#303030',
 								margin: 0,
-								lineHeight:1.2
+								lineHeight: 1.2
 							},
 							strong: {
 								fontSize: 12,
